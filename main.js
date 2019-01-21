@@ -46,12 +46,6 @@ let congratulating = false;
 const PAUSE_SYMB = "❚❚";
 const RESUME_SYMB = "▶";
 
-const reset_ui = () => {
-  reset_progressbar();
-  set_buttons_state(false);
-  set_buttons_visibility(false);
-};
-
 const set_buttons_state = is_enabled => {
   for (let $button of $buttons) {
     $button.disabled = !is_enabled;
@@ -97,6 +91,11 @@ const init = () => {
   update();
 };
 
+const reset_ui = () => {
+  reset_progressbar();
+  set_buttons_state(false);
+  set_buttons_visibility(false);
+};
 const reset_progressbar = () => {
   $progressbar.style.width = "0%";
   $progressbar.classList.remove("timeout");
@@ -240,7 +239,6 @@ const update = () => {
       state = TALKING;
       break;
     }
-
     case TALKING: {
       if (!voice.is_talking()) {
         for (let [i, $button] of $buttons.entries()) {
@@ -271,12 +269,13 @@ const update = () => {
         (100 * game_params.current.timer) / game_params.config.timer + "%";
       break;
     }
-    case WAIT:
+    case WAIT: {
       if (!(voice.is_talking() && congratulating) && timer.is_done()) {
         congratulating = false;
         state = INIT;
       }
       break;
+    }
   }
 };
 
