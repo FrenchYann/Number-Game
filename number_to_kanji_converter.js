@@ -18,7 +18,10 @@ const dictionary = {
   100000000: "億",
   1000000000000: "兆"
 };
-const convert = n => {
+const convert = n => { 
+  // assume number passed as a string, 
+  // just because javascript rounds 9999999999999999 to 1e16, 
+  // 9999999999999998 is fine though... but you now...
   let str_num = n;
   let groups = [[]];
   for (let i = str_num.length - 1; i >= 0; i--) {
@@ -31,7 +34,7 @@ const convert = n => {
   }
 
   if (groups.length > 4) {
-    throw new Error("Number too big must be within [1,10^16)");
+    throw new Error("Number too big must be within [1,1e16)");
   }
   let result = "";
   for (let index_group = groups.length - 1; index_group >= 0; index_group--) {

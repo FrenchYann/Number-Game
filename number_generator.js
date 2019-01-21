@@ -49,89 +49,81 @@ for (let digit_count = 1; digit_count <= 16; digit_count++) {
     levels.push({ digit_count, low, hi });
   }
 }
+const digits_to_number = digits => digits.flat().join("");
 
 const get_random_number = level => {
   const { digit_count, low, hi } = levels[level];
-  const dist = new Array(Math.ceil(digit_count / 4) - 1)
-    .fill(undefined)
-    .map(_ => ({ size: 4, words: 0 }));
-  dist.push({ size: ((digit_count - 1) % 4) + 1 });
-
   const word_length = random_int(low, hi + 1);
 
-  const digits_to_number = digits =>
-    digits
-      .flat()
-      .reverse()
-      .join("");
-
-  function find_distributions(distribution, words, index = 0) {
+  const get_set_to_choose_from = (is_first, is_last, digit) => {
+    return is_first
+      ? is_last
+        ? numbers_by_word_count_per_digit[digit]
+        : numbers_by_word_count_per_digit_issen[digit]
+      : is_last
+      ? numbers_by_word_count
+      : numbers_by_word_count_issen;
+  };
+  const find_distributions = (distribution, words, group_index = 0) => {
     let sum = distribution.reduce((acc, x) => acc + x.words, 0);
     if (sum === words) {
       return [distribution];
     } else {
-      if (index === distribution.length) {
+      if (group_index === distribution.length || sum > words) {
         // bad sum and no more 4 digit groups to distribute
         // return no solution
         return [];
       }
-      let choose_from;
       // we start with the last group (highest order)
-      let group_index = distribution.length - 1 - index;
-      if (index === 0) {
-        // first iteration
-        // it's a special case 'cause it may be less than 4 digit long
-        // and we need to match the size
-        // eg: if size is 3, 100 is ok, 10 isn't
-        // otherwise the resulting number will always be too short
-        let { size } = distribution[group_index];
-        choose_from =
-          group_index === 0
-            ? numbers_by_word_count_per_digit[size]
-            : numbers_by_word_count_per_digit_issen[size];
-      } else {
-        // always 4 digit long, we can use any number from 0 to 9999
-        choose_from =
-          group_index === 0 ? numbers_by_word_count : numbers_by_word_count_issen;
-      }
-      let penalty = group_index > 0 ? 1 : 0; // penalty is for the chou, oku, man words
+      let choose_from = get_set_to_choose_from(
+        group_index === 0,
+        group_index === distribution.length - 1,
+        distribution[group_index].digit
+      );
+      let penalty = group_index < distribution.length - 1 ? 1 : 0; // penalty is for the chou, oku, man words
       let results = [];
-      for (let j = 1; j < choose_from.length; j++) {
-        if (choose_from[j] && choose_from[j].length > 0) {
-          let copy = distribution.map(x => Object.assign({}, x));
-          copy[group_index].words = j + penalty;
-          // we explore all possible cases recursively
-          results = results.concat(find_distributions(copy, words, index + 1));
+      let word_len;
+      for (let j = 0; j < choose_from.length; j++) {
+        if (j === 0) {
+          // we don't allow empty first group, or digit_count can't be maintained
+          if (group_index === 0) continue;
+          word_len = 0;
+        } else if (choose_from[j] && choose_from[j].length > 0) {
+          word_len = j + penalty;
         }
+
+        let copy = distribution.map(x => Object.assign({}, x));
+        copy[group_index].words = word_len;
+        // we explore all possible cases recursively
+        results = results.concat(find_distributions(copy, words, group_index + 1));
       }
       return results;
     }
-  }
+  };
 
   // we choose a random digit distribution amongst all possibilities
   // and generate a number following this "recipe"
-  let final_distribution = choose(find_distributions(dist, word_length));
-  //console.log("final distribution", final_distribution);
+  const dist_template = build_array(Math.ceil(digit_count / 4) - 1, _ => ({
+    digit: 4,
+    words: 0
+  }));
+  dist_template.unshift({ digit: digit_count - dist_template.length * 4, words: 0 });
+  let final_distribution = choose(find_distributions(dist_template, word_length));
   let digits = [];
   for (let [i, d] of final_distribution.entries()) {
-    let penalty = i > 0 ? 1 : 0;
-    let final = i === final_distribution.length - 1;
-    let choose_from = final
-      ? i === 0
-        ? numbers_by_word_count_per_digit[d.size]
-        : numbers_by_word_count_per_digit_issen[d.size]
-      : i === 0
-      ? numbers_by_word_count
-      : numbers_by_word_count_issen;
-    //console.log("final?", final, " - words", d.words, " - penalty", penalty);
+    let penalty = i < final_distribution.length - 1 ? 1 : 0;
+    let choose_from = get_set_to_choose_from(
+      i === 0,
+      i === final_distribution.length - 1,
+      d.digit
+    );
     if (d.words === 0) {
       digits.push(["0", "0", "0", "0"]);
     } else {
       digits.push(
         choose(choose_from[d.words - penalty])
-          .padStart(d.size, "0")
+          .padStart(d.digit, "0")
           .split("")
-          .reverse()
       );
     }
   }
@@ -155,17 +147,17 @@ const generate_wrong_answers = (right_answer, count) => {
     return copy;
   };
 
-  const group_array_from_right = (arr, group_size) => {
-    let result = new Array(Math.ceil(arr.length / group_size));
-    let offset = result.length * group_size - arr.length;
+  const group_array_from_right = (arr, group_digit) => {
+    let result = new Array(Math.ceil(arr.length / group_digit));
+    let offset = result.length * group_digit - arr.length;
 
     for (let i = arr.length - 1; i >= 0; i--) {
       let index = i + offset;
-      let group_index = Math.floor(index / group_size);
-      if (index === (group_index + 1) * group_size - 1) {
-        result[group_index] = new Array(group_size);
+      let group_index = Math.floor(index / group_digit);
+      if (index === (group_index + 1) * group_digit - 1) {
+        result[group_index] = new Array(group_digit);
       }
-      result[group_index][index % group_size] = arr[i];
+      result[group_index][index % group_digit] = arr[i];
     }
 
     result[0] = result[0].filter(x => x !== undefined);
@@ -179,7 +171,7 @@ const generate_wrong_answers = (right_answer, count) => {
     let choice_str = str.slice(0);
     let group_to_jumble = random_int(0, choice_str.length);
     choice_str[group_to_jumble] = jumble_group(choice_str[group_to_jumble]);
-    let choice = parseInt(choice_str.flat().join(""), 10).toString();
+    let choice = parseInt(digits_to_number(choice_str), 10).toString();
     if (choice.length === right_answer.length && choice !== "0") {
       choices.add(choice);
     }
