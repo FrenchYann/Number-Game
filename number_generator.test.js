@@ -2,23 +2,20 @@ import convert from "./number_to_kanji_converter.js";
 import { levels, get_random_number } from "./number_generator.js";
 
 console.log("start testing number generator...");
-for (let digit_count = 1; digit_count <= 16; digit_count++) {
-  for (let i = 0; i < 1000; i++) {
-    let complexity = "hardest";
-    const level = levels.length - 1;
-    const { digit_count, low, hi } = levels[levels.length - 1];
+for (let level = 0; level < levels.length; level++) {
+  for (let i = 0; i < 100; i++) {
+    const { digit_count, low, hi } = levels[level];
     let number = get_random_number(level);
     let kanji = convert(number);
-    let len = kanji.length;
-    if (len < low || len > hi) {
+    let word_length = kanji.length;
+    if (number.length !== digit_count || word_length < low || word_length > hi) {
       console.error(
         `we want 
   ${digit_count} digits, with complexity ${complexity} (${low},${hi})
 we got:
-  ${number} - ${kanji} - ${len}`
+  ${number} - ${kanji} - ${word_length}`
       );
     }
-    //console.log(`${number} - ${kanji} - ${len}`);
   }
 }
 console.log("done!");
