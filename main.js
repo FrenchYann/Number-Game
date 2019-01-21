@@ -3,9 +3,8 @@ import { clamp, shuffle, lerp, timer, percent, choose, RingList } from "./utils.
 import convert from "./number_to_kanji_converter.js";
 import voice from "./voice.js";
 
-/* TODO:
-
-Maybe:
+/* TODO maybe:
+- if I ever want to add more feature, I should probably switch to state objects instead of constants... 
 - if I get down to make some UI to configure everything, it will be available on pause
 - resize text to always fit button ... meh...
 //*/
