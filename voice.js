@@ -1,10 +1,5 @@
-let msg = new SpeechSynthesisUtterance();
-msg.voice = null;
-msg.volume = 1; // 0 to 1
-msg.rate = 0.8; // 0.1 to 10
-msg.pitch = 0; //0 to 2
-msg.lang = "ja";
-
+let msg; // to avoid garbage collection, makes onend bug
+let voice = null;
 let talking = false;
 
 async function get_voices() {
@@ -22,10 +17,17 @@ async function get_voices() {
 }
 const init_voice = async () => {
   let voices = await get_voices();
-  msg.voice = voices.filter(v => v.lang.startsWith("ja"))[1];
+  let japanese_voices = voices.filter(v => v.lang.startsWith("ja"));
+  voice = japanese_voices[japanese_voices.length - 1];
 };
 
 const say_in_japanese = text => {
+  msg = new SpeechSynthesisUtterance();
+  msg.voice = voice;
+  msg.volume = 1; // 0 to 1
+  msg.rate = 0.8; // 0.1 to 10
+  msg.pitch = 0; //0 to 2
+  msg.lang = "ja";
   talking = true;
   msg.text = text;
   speechSynthesis.speak(msg);
