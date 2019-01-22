@@ -170,7 +170,11 @@ const done = (is_right, idx) => {
     game_params.current.xp++;
     display_xp(game_params.current.xp);
     if (game_params.current.xp >= game_params.current.next_xp) {
-      game_params.current.level++;
+      // TODO: proper ending, or something
+      game_params.current.level = Math.min(
+        levels.length - 1,
+        game_params.current.level + 1
+      );
       $level.classList.add("pulsate");
       congrats();
     }
