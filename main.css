@@ -176,3 +176,21 @@ button.answer:disabled.right {
   background: #28dafc;
   box-shadow: 0 0 9px 3px #00ebff42;
 }
+
+@media only screen and (max-width: 600px) {
+  #buttons {
+    grid-template:
+      "a1"
+      "a2"
+      "a3"
+      "a4"
+      "p";
+    grid-template-columns: 1fr;
+  }
+  body.pause #buttons {
+    grid-gap: 0;
+  }
+  #pause {
+    width: auto;
+  }
+}

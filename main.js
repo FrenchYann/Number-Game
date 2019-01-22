@@ -304,6 +304,7 @@ window.onload = async () => {
   let $pause = document.getElementById("pause");
   $pause.textContent = RESUME_SYMB;
   $pause.onclick = function() {
+    document.body.classList.remove("pause");
     if (!started) {
       started = true;
       this.style.fontSize = "1em";
@@ -313,6 +314,7 @@ window.onload = async () => {
     } else {
       pause = !pause;
       if (pause) {
+        document.body.classList.add("pause");
         this.style.fontSize = "4em";
         reset_ui();
         set_buttons_display(false);
