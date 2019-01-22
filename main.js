@@ -183,7 +183,8 @@ const done = (is_right, idx) => {
         levels.length - 1,
         game_params.current.level + 1
       );
-      $level.classList.add("pulsate");
+      $level.classList.remove("pulsate");
+      setTimeout(() => $level.classList.add("pulsate"), 0);
       congrats();
     }
   } else {
@@ -238,7 +239,6 @@ const update = () => {
           game_params.current.next_xp * 10
         );
         reset_xp(game_params.current.next_xp);
-        $level.classList.remove("pulsate");
       }
 
       display_score();
