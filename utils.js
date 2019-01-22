@@ -51,3 +51,4 @@ export class RingList {
     this.index = (this.arr.length + (this.index - 1)) % this.arr.length;
   }
 }
+export const hasTouch = () => "ontouchstart" in document.documentElement;

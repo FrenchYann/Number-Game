@@ -1,5 +1,14 @@
 import { get_random_number, levels, generate_wrong_answers } from "./number_generator.js";
-import { clamp, shuffle, lerp, timer, percent, choose, RingList } from "./utils.js";
+import {
+  clamp,
+  shuffle,
+  lerp,
+  timer,
+  percent,
+  choose,
+  RingList,
+  hasTouch
+} from "./utils.js";
 import convert from "./number_to_kanji_converter.js";
 import voice from "./voice.js";
 
@@ -284,6 +293,7 @@ const update = () => {
 };
 
 window.onload = async () => {
+  if (!hasTouch()) document.body.classList.add("has_hover");
   await voice.init_voice();
   $score = document.getElementById("score_value");
   $level = document.getElementById("level_value");

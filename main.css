@@ -115,9 +115,8 @@ button.a4 {
   outline: 0;
   padding: 30px 10px;
 }
-
-#pause:hover,
-#buttons button.answer:hover {
+body.has_hover #pause:hover,
+body.has_hover button.answer:enabled:hover {
   background: #aaa;
 }
 
