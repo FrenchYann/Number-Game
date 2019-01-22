@@ -38,7 +38,7 @@ game_params.current.next_xp = game_params.config.min_xp;
 let $score;
 let $level;
 let $progressbar;
-let $buttons = [];
+let $buttons = null;
 
 const INIT = Symbol.for("INIT");
 const TALKING = Symbol.for("TALKING");
@@ -55,19 +55,19 @@ const PAUSE_SYMB = "❚❚";
 const RESUME_SYMB = "▶";
 
 const set_buttons_state = is_enabled => {
-  for (let $button of $buttons) {
-    $button.disabled = !is_enabled;
-  }
+  $buttons.forEach(el => {
+    el.disabled = !is_enabled;
+  });
 };
 const set_buttons_visibility = is_visible => {
-  for (let $button of $buttons) {
-    $button.style.visibility = is_visible ? "visible" : "hidden";
-  }
+  $buttons.forEach(el => {
+    el.style.visibility = is_visible ? "visible" : "hidden";
+  });
 };
 const set_buttons_display = display => {
-  for (let $button of $buttons) {
-    $button.style.display = display ? "block" : "none";
-  }
+  $buttons.forEach(el => {
+    el.style.display = display ? "block" : "none";
+  });
 };
 
 const setup_shortcuts = function() {
@@ -91,9 +91,8 @@ const setup_shortcuts = function() {
 
 const init = () => {
   state = INIT;
-  for (let $button of document.querySelectorAll("#buttons>button.answer")) {
-    $buttons.push($button);
-  }
+  $buttons = document.querySelectorAll("button.answer");
+
   setup_shortcuts();
   reset_ui();
   update();
