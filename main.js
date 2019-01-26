@@ -255,7 +255,7 @@ const update = () => {
       if (!voice.is_talking()) {
         for (let [i, $button] of $buttons.entries()) {
           let number = choices[i];
-          $button.textContent = choices[i];
+          $button.textContent = parseInt(choices[i], 10).toLocaleString();
           $button.classList.remove("wrong");
           $button.classList.remove("right");
           $button.is_right = number === answer;
