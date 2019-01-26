@@ -92,8 +92,6 @@ const setup_shortcuts = function() {
 const init = () => {
   state = INIT;
   $buttons = document.querySelectorAll("button.answer");
-
-  setup_shortcuts();
   reset_ui();
   update();
 };
@@ -328,4 +326,5 @@ window.onload = async () => {
       }
     }
   };
+  setup_shortcuts();
 };
