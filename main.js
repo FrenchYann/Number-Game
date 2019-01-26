@@ -44,7 +44,7 @@ const INIT = Symbol.for("INIT");
 const TALKING = Symbol.for("TALKING");
 const PLAY = Symbol.for("PLAY");
 const WAIT = Symbol.for("WAIT");
-let state;
+let state = null;
 let answer;
 let choices;
 let pause = false;
@@ -73,17 +73,34 @@ const set_buttons_display = display => {
 const setup_shortcuts = function() {
   document.onkeydown = function(e) {
     switch (e.keyCode) {
-      case 101:
+      /* shortcuts for buttons using the numpad
+            5 6
+            2 3
+      */
+      case 101: // NumPad 5
         $buttons[0].click();
         break;
-      case 102:
+      case 102: // NumPad 6
         $buttons[1].click();
         break;
-      case 98:
+      case 98: // NumPad 2
         $buttons[2].click();
         break;
-      case 99:
+      case 99: // NumPad 3
         $buttons[3].click();
+        break;
+      case 76: // L
+        voice.cancel();
+        let input_level = parseInt(prompt(`Input level [1-${levels.length}]`), 10);
+        if (!isNaN(input_level) && input_level >= 1 && input_level <= levels.length) {
+          game_params.current.level = input_level - 1;
+          lastLevel = input_level - 1;
+          init_level();
+        }
+        if (state !== null) {
+          reset_ui();
+          state = INIT;
+        }
         break;
     }
   };
@@ -207,6 +224,22 @@ const display_answer = idx => {
   }
 };
 
+const init_level = () => {
+  game_params.current.next_xp = Math.round(
+    lerp(
+      game_params.config.min_xp,
+      game_params.config.max_xp,
+      game_params.current.level / levels.length
+    )
+  );
+  game_params.current.deck = generate_deck(
+    game_params.current.level,
+    game_params.current.next_xp * 10
+  );
+  reset_xp(game_params.current.next_xp);
+  display_level();
+};
+
 let lastTime = Date.now();
 let lastLevel = null;
 const update = () => {
@@ -225,22 +258,10 @@ const update = () => {
       }
       if (game_params.current.level != lastLevel) {
         lastLevel = game_params.current.level;
-        game_params.current.next_xp = Math.round(
-          lerp(
-            game_params.config.min_xp,
-            game_params.config.max_xp,
-            game_params.current.level / levels.length
-          )
-        );
-        game_params.current.deck = generate_deck(
-          game_params.current.level,
-          game_params.current.next_xp * 10
-        );
-        reset_xp(game_params.current.next_xp);
+        init_level();
       }
 
       display_score();
-      display_level();
       game_params.current.deck.next();
       answer = game_params.current.deck.value;
       choices = generate_wrong_answers(answer, 4);
